@@ -31,7 +31,7 @@ docker compose up -d
 # http://localhost:3000
 ```
 
-> **หมายเหตุ:** ครั้งแรกที่รัน MySQL จะ Import ไฟล์ `schema.sql` ให้อัตโนมัติ (สร้าง Database, ตาราง, และ User ทดสอบ)
+> **หมายเหตุ:** ครั้งแรกที่รัน MySQL จะ Import ไฟล์ `redis_project.sql` ให้อัตโนมัติ (สร้าง Database, ตาราง, และ User ทดสอบ)
 
 #### คำสั่งที่ใช้บ่อย
 
@@ -71,7 +71,8 @@ cp .env.example .env
 # แก้ไขค่าใน .env ให้ตรงกับเครื่องของคุณ
 
 # 4. สร้าง Database และตาราง
-mysql -u root -p < schema.sql
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS redis_project;"
+mysql -u root -p redis_project < redis_project.sql
 
 # 5. ตรวจสอบว่า MySQL และ Redis เปิดอยู่ แล้วรันแอป
 npm start
@@ -81,7 +82,9 @@ npm start
 
 | Username | Password |
 |---|---|
-| `admin` | `password123` |
+| `tanavid` | *(รหัสผ่านที่ตั้งไว้ตอนสร้าง)* |
+| `kookkid` | *(รหัสผ่านที่ตั้งไว้ตอนสร้าง)* |
+| `weewad` | *(รหัสผ่านที่ตั้งไว้ตอนสร้าง)* |
 
 ## 📁 โครงสร้างโปรเจกต์
 
@@ -95,7 +98,7 @@ redis-project/
 │   └── style.css         # ไฟล์ CSS
 ├── db.js                 # การเชื่อมต่อ MySQL
 ├── server.js             # Express.js Server หลัก
-├── schema.sql            # โครงสร้าง Database & ข้อมูลทดสอบ
+├── redis_project.sql     # โครงสร้าง Database & ข้อมูลทดสอบ (phpMyAdmin dump)
 ├── Dockerfile            # Docker Image สำหรับแอป
 ├── docker-compose.yml    # จัดการ MySQL + Redis + App
 ├── .env.example          # ตัวอย่าง Environment Variables
