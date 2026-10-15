@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ไม่มีสิทธิ์เข้าถึง (Access Denied)</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .error-icon {
+            font-size: 54px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .error-title {
+            color: #d9534f;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .error-desc {
+            text-align: center;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            word-break: normal;
+            font-size: 15px;
+        }
+
+        .btn-login {
+            background-color: #337ab7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-login:hover {
+            background-color: #286090;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="error-icon">🚫</div>
+
+        <h1 class="error-title">ไม่มีสิทธิ์เข้าถึง</h1>
+
+        <p class="error-desc">
+            ระบบตรวจไม่พบ Session หรือ Session ของคุณหมดอายุแล้ว<br>
+            กรุณาเข้าสู่ระบบก่อนเข้าใช้งานหน้านี้
+        </p>
+
+        <button class="btn-login" onclick="window.location.href='/login.html'">
+            ไปที่หน้า Login
+        </button>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>Redis Sessions</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Redis Session List</h1>
+
+        <p>
+            Active Sessions:
+            <strong id="totalSessions">0</strong>
+        </p>
+
+        <div id="sessionList">
+            Loading...
+        </div>
+
+        <br>
+
+        <button onclick="loadSessions()" style="margin-bottom: 10px;">
+            Refresh
+        </button>
+
+        <button onclick="window.location.href='/sessions.html'">
+            Back
+        </button>
+
+    </div>
+
+    <script>
+
+        let countdownInterval = null;
+        let sessionsData = [];
+
+        function formatTTL(seconds) {
+            if (seconds <= 0) {
+                return '<span style="color: #e74c3c; font-weight: bold;">Expired</span>';
+            }
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes} min ${remainingSeconds < 10 ? '0' : ''}${remainingSeconds} sec`;
+        }
+
+        function startCountdown() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            countdownInterval = setInterval(() => {
+                let anyExpired = false;
+
+                sessionsData.forEach((session, index) => {
+                    if (session.remainingTTL > 0) {
+                        session.remainingTTL -= 1;
+
+                        const ttlElem = document.getElementById(`ttl-${index}`);
+                        if (ttlElem) {
+                            ttlElem.innerHTML = formatTTL(session.remainingTTL);
+                        }
+
+                        if (session.remainingTTL <= 0) {
+                            anyExpired = true;
+                        }
+                    }
+                });
+
+                // หากมี Session หมดอายุ ให้ดึงข้อมูลใหม่จาก Redis
+                if (anyExpired) {
+                    setTimeout(loadSessions, 1500);
+                }
+            }, 1000);
+        }
+
+        async function loadSessions() {
+
+            const response = await fetch("/api/sessions");
+
+            if (response.status === 401) {
+                window.location.href = "/unauthorized.html";
+                return;
+            }
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                document.getElementById("sessionList").innerHTML =
+                    `<p style="color: red;">Error: ${err.message || "Failed to load sessions"}</p>`;
+                return;
+            }
+
+            const data = await response.json();
+
+            document.getElementById("totalSessions").textContent =
+                data.total;
+
+            if (data.sessions.length === 0) {
+                if (countdownInterval) clearInterval(countdownInterval);
+                sessionsData = [];
+                document.getElementById("sessionList").innerHTML =
+                    "<p>No active sessions</p>";
+                return;
+            }
+
+            sessionsData = data.sessions.map((session) => ({
+                ...session,
+                remainingTTL: session.ttl
+            }));
+
+            let html = "";
+
+            sessionsData.forEach((session, index) => {
+
+                html += `
+
+            <div class="session-card">
+
+                <h3>
+                    Session ${index + 1}
+                </h3>
+
+                <p>
+                    <strong>Session ID:</strong><br>
+                    ${session.sessionId}
+                </p>
+
+                <p>
+                    <strong>User ID:</strong>
+                    ${session.userId ?? "-"}
+                </p>
+
+                <p>
+                    <strong>Username:</strong>
+                    ${session.username ?? "-"}
+                </p>
+
+                <p>
+                    <strong>Login Time:</strong>
+                    ${session.loginTime ?? "-"}
+                </p>
+
+                <p>
+                    <strong>TTL:</strong>
+                    <span id="ttl-${index}">${formatTTL(session.remainingTTL)}</span>
+                </p>
+
+            </div>
+
+        `;
+            });
+
+            document.getElementById("sessionList").innerHTML = html;
+
+            startCountdown();
+        }
+
+        loadSessions();
+
+        // Auto-sync กับ Redis ทุกๆ 15 วินาที
+        setInterval(loadSessions, 15000);
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>Session</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Session Information</h1>
+
+        <div id="sessionInfo">
+
+            <p>Loading...</p>
+
+        </div>
+
+        <button id="logoutButton">
+            Logout
+        </button>
+
+        <button id="viewSessionsButton">
+            View All Redis Sessions
+        </button>
+
+    </div>
+
+    <script>
+
+        async function loadSession() {
+
+            const response = await fetch("/api/session");
+
+            if (!response.ok) {
+
+                window.location.href = "/unauthorized.html";
+
+                return;
+            }
+
+            const session = await response.json();
+
+            document.getElementById("sessionInfo").innerHTML = `
+
+        <p>
+            <strong>Session ID:</strong>
+            ${session.sessionId}
+        </p>
+
+        <p>
+            <strong>User ID:</strong>
+            ${session.userId}
+        </p>
+
+        <p>
+            <strong>Username:</strong>
+            ${session.username}
+        </p>
+
+        <p>
+            <strong>Login Time:</strong>
+            ${session.loginTime}
+        </p>
+
+    `;
+        }
+
+        document
+            .getElementById("logoutButton")
+            .addEventListener("click", async () => {
+
+                await fetch("/api/logout", {
+                    method: "POST"
+                });
+
+                window.location.href = "/login.html";
+
+            });
+
+        document
+            .getElementById("viewSessionsButton")
+            .addEventListener("click", () => {
+                window.location.href = "/sessions-list.html";
+            });
+
+        loadSession();
+
+    </script>
+
+</body>
+
+</html>
